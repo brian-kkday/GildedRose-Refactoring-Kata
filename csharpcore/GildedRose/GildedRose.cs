@@ -12,77 +12,107 @@ namespace GildedRoseKata
 
         public void UpdateQuality()
         {
-            for (var i = 0; i < _items.Count; i++)
+            var factory = new Factory();
+
+            foreach (var item in _items)
             {
-                if (_items[i].Name != "Aged Brie" && _items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
+                var itemFactory = factory.Create(item);
+                itemFactory.Decline(item);
+            }
+        }
+
+        public interface IItem
+        {
+            public Item Decline(Item item);
+        }
+
+        public class Factory
+        {
+            public IItem Create(Item item)
+            {
+                IItem result = null;
+
+                switch (item.Name)
                 {
-                    if (_items[i].Quality > 0)
-                    {
-                        if (_items[i].Name != "Sulfuras, Hand of Ragnaros")
-                        {
-                            _items[i].Quality = _items[i].Quality - 1;
-                        }
-                    }
+                    case "Sulfuras, Hand of Ragnaros":
+                        result = new Sulfuras();
+                        break;
+                    case "Backstage passes to a TAFKAL80ETC concert":
+                        result = new BackstagePass();
+                        break;
+                    case "Aged Brie":
+                        result = new AgedBrie();
+                        break;
+                    default:
+                        result = new NormalItem();
+                        break;
                 }
+
+                return result;
+            }
+        }
+
+        public class NormalItem : IItem
+        {
+            public Item Decline(Item item)
+            {
+                var declineQuantityCount = 1;
+                var declineQuantityRate = 1;
+
+
+                if (item.SellIn <= 0) item.Quality -= declineQuantityCount * declineQuantityRate * 2;
                 else
+                    item.Quality -= declineQuantityCount * declineQuantityRate;
+
+                if (item.Quality < 0) item.Quality = 0;
+
+                item.SellIn -= 1;
+                return item;
+            }
+        }
+
+        public class Sulfuras : IItem
+        {
+            public Item Decline(Item item)
+            {
+                return item;
+            }
+        }
+
+        public class BackstagePass : IItem
+        {
+            public Item Decline(Item item)
+            {
+                if (item.SellIn <= 0)
                 {
-                    if (_items[i].Quality < 50)
-                    {
-                        _items[i].Quality = _items[i].Quality + 1;
-
-                        if (_items[i].Name == "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (_items[i].SellIn < 11)
-                            {
-                                if (_items[i].Quality < 50)
-                                {
-                                    _items[i].Quality = _items[i].Quality + 1;
-                                }
-                            }
-
-                            if (_items[i].SellIn < 6)
-                            {
-                                if (_items[i].Quality < 50)
-                                {
-                                    _items[i].Quality = _items[i].Quality + 1;
-                                }
-                            }
-                        }
-                    }
+                    item.SellIn -= 1;
+                    item.Quality = 0;
+                    return item;
                 }
 
-                if (_items[i].Name != "Sulfuras, Hand of Ragnaros")
-                {
-                    _items[i].SellIn = _items[i].SellIn - 1;
-                }
+                item.Quality += 1;
 
-                if (_items[i].SellIn < 0)
-                {
-                    if (_items[i].Name != "Aged Brie")
-                    {
-                        if (_items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (_items[i].Quality > 0)
-                            {
-                                if (_items[i].Name != "Sulfuras, Hand of Ragnaros")
-                                {
-                                    _items[i].Quality = _items[i].Quality - 1;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            _items[i].Quality = _items[i].Quality - _items[i].Quality;
-                        }
-                    }
-                    else
-                    {
-                        if (_items[i].Quality < 50)
-                        {
-                            _items[i].Quality = _items[i].Quality + 1;
-                        }
-                    }
-                }
+                if (item.SellIn < 11 && item.SellIn > 5) item.Quality += 1;
+                if (item.SellIn <= 5) item.Quality += 2;
+                if (item.Quality > 50) item.Quality = 50;
+
+                item.SellIn -= 1;
+                return item;
+            }
+        }
+
+        public class AgedBrie : IItem
+        {
+            public Item Decline(Item item)
+            {
+                item.Quality += 1;
+
+                if (item.SellIn <= 0) item.Quality += 1;
+
+                if (item.Quality > 50) item.Quality = 50;
+
+                item.SellIn -= 1;
+                return item;
             }
         }
     }
