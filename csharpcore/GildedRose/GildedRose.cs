@@ -43,6 +43,9 @@ namespace GildedRoseKata
                     case "Aged Brie":
                         result = new AgedBrie();
                         break;
+                    case "Conjured":
+                        result = new Conjured();
+                        break;
                     default:
                         result = new NormalItem();
                         break;
@@ -112,6 +115,22 @@ namespace GildedRoseKata
                 if (item.Quality > 50) item.Quality = 50;
 
                 item.SellIn -= 1;
+                return item;
+            }
+        }
+
+        public class Conjured : IItem
+        {
+            public Item Decline(Item item)
+            {
+                item.Quality -= 1 * 2;
+
+                if (item.SellIn <= 0) item.Quality -= 1 * 2;
+
+                if (item.Quality < 0) item.Quality = 0;
+
+                item.SellIn -= 1;
+
                 return item;
             }
         }
