@@ -30,28 +30,14 @@ namespace GildedRoseKata
         {
             public IItem Create(Item item)
             {
-                IItem result = null;
-
-                switch (item.Name)
+                return item.Name switch
                 {
-                    case "Sulfuras, Hand of Ragnaros":
-                        result = new Sulfuras();
-                        break;
-                    case "Backstage passes to a TAFKAL80ETC concert":
-                        result = new BackstagePass();
-                        break;
-                    case "Aged Brie":
-                        result = new AgedBrie();
-                        break;
-                    case "Conjured":
-                        result = new Conjured();
-                        break;
-                    default:
-                        result = new NormalItem();
-                        break;
-                }
-
-                return result;
+                    "Sulfuras, Hand of Ragnaros" => new Sulfuras(),
+                    "Backstage passes to a TAFKAL80ETC concert" => new BackstagePass(),
+                    "Aged Brie" => new AgedBrie(),
+                    "Conjured" => new Conjured(),
+                    _ => new NormalItem()
+                };
             }
         }
 
@@ -59,13 +45,10 @@ namespace GildedRoseKata
         {
             public Item Decline(Item item)
             {
-                var declineQuantityCount = 1;
-                var declineQuantityRate = 1;
+                var declineQuantityUnit = 1;
+                var declineQuantityRate = item.SellIn <= 0 ? 2 : 1;
 
-
-                if (item.SellIn <= 0) item.Quality -= declineQuantityCount * declineQuantityRate * 2;
-                else
-                    item.Quality -= declineQuantityCount * declineQuantityRate;
+                item.Quality -= declineQuantityUnit * declineQuantityRate;
 
                 if (item.Quality < 0) item.Quality = 0;
 
@@ -93,10 +76,13 @@ namespace GildedRoseKata
                     return item;
                 }
 
-                item.Quality += 1;
+                var declineQuantityUnit = 1;
 
-                if (item.SellIn < 11 && item.SellIn > 5) item.Quality += 1;
-                if (item.SellIn <= 5) item.Quality += 2;
+                if (item.SellIn < 11 && item.SellIn > 5) declineQuantityUnit += 1;
+                if (item.SellIn <= 5) declineQuantityUnit += 2;
+
+                item.Quality += declineQuantityUnit;
+                
                 if (item.Quality > 50) item.Quality = 50;
 
                 item.SellIn -= 1;
@@ -123,10 +109,11 @@ namespace GildedRoseKata
         {
             public Item Decline(Item item)
             {
-                item.Quality -= 1 * 2;
+                var declineQuantityUnit = 1;
+                var declineQuantityRate = item.SellIn <= 0 ? 4 : 2;
 
-                if (item.SellIn <= 0) item.Quality -= 1 * 2;
-
+                item.Quality -= declineQuantityUnit * declineQuantityRate;
+                
                 if (item.Quality < 0) item.Quality = 0;
 
                 item.SellIn -= 1;
